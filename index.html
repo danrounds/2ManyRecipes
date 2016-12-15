@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>2ManyRecipes</title>
+    <link rel="stylesheet" href="main.css" type="text/css" media="screen" />
+  </head>
+  <body>
+
+    <h1>2ManyRecipes</h1>
+    <p>Recipe & food technique videos<br/>
+      &mdash;aggregated for your pleasure</p>
+
+    <form class="search-form">
+      <input type="text" class="search-text" placeholder="enter the name of a dish..." autofocus/>
+      <button type="submit">find it!</button>
+    </form>
+
+
+    <section class="search-results">
+      <div class="results recipe-results">
+        <!-- results go here -->
+      </div>
+      <div class="results video-results">
+        <!-- & results go here -->
+      </div>
+    </section>
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.js"> </script>
+    <script src="app.js"></script>
+    <script src="http://localhost:8080/skewer"></script> <!-- comment out when done -->
+  </body>
+</html>
