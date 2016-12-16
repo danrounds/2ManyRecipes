@@ -32,10 +32,6 @@ function getYouTubeSearch(recipeTerm, callback) {
         maxResults: 15,
         q: recipeTerm + ' recipe'
     };
-    // $.getJSON(YOUTUBE_SEARCH_URL, query, callback).done(function(){
-    //     getVideoIDs(state);
-    //     displayVideos(state);
-    // });
     return $.getJSON(YOUTUBE_SEARCH_URL, query, callback)
 }
 
@@ -45,7 +41,7 @@ function getVideoIDs(state){
         part: 'contentDetails',
         id: makeIDQuery(state.videoResults)
     };
-    return $.getJSON(YOUTUBE_VID_INQ, query, console.log)
+    return $.getJSON(YOUTUBE_VID_INQ, query, makeVidLengths);
 }
 
 function makeIDQuery(videoResults) {
@@ -64,16 +60,30 @@ var state = {
     //   recipe_no: recipe #, to be inserted into anchor
 
     r_i: 0,                      // recipe index
-    videoResults: []     // Array of objects -- key:val
+    videoResults: [],     // Array of objects -- key:val
     //   innerHTML: elements going into our outer link,
     //   id:  vid id to be inserted into anchor
-    
+    IDtoLength: {}
 };
 
 function addRecipeResult(object) {
     state.recipeResults[state.r_i] = object;
     state.r_i++;
 }
+
+function makeVidLengths(JSON) {
+    JSON.items.forEach(function(item){
+        state.IDtoLength[item.id] = parseTimeStamp(item);
+    });
+    console.log(state.IDtoLength);
+}
+
+function parseTimeStamp(item) {
+    // You'll have to play with formatting
+    var tStamp = item.contentDetails.duration;
+    return tStamp.slice(2, -1).replace('M', ':');
+}
+
 
 function addVideoResult(object) {
     state.videoResults[state.v_i] = object;
@@ -113,7 +123,6 @@ function populateVidResults(JSON) {
         // resultsElement += `<div class="video-element">${linked}</div>`;
         addVideoResult( { innerHTML:content, id:item.id.videoId});
     });
-    console.log(state.videoResults);
 }
 
 
@@ -137,10 +146,10 @@ function displayVideos(state) {
     var elms = moreSearchResults(state.videoResults);
     if (elms.length > 0) {
         for (var v of elms) {
-            var videoLen = '0:00'
-            var len = `<p>${videoLen}</p>\n`
+            var videoLen = state.IDtoLength[v.id];
+            var len = `<p>${videoLen}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
-                +`${v.videoId}" target="_blank">${v.innerHTML+len}</a>`;
+                +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
             resultsElement += linked;
         }
     } else {
@@ -163,7 +172,6 @@ function watchSubmit() {
                 displayVideos(state);
             });
         });
-
 
     });
 }
