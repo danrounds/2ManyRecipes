@@ -24,14 +24,17 @@ function getYummlyResults(recipeTerm, state, callback) {
     });
 }
 
-function getYouTubeSearch(recipeTerm, callback) {
+function getYouTubeSearch(recipeTerm, state, callback) {
     var query = {
         key: 'AIzaSyBTNjgDxhK8Valx49hGTSgVJ0wkjCYaqwk',
         part: 'snippet',
         maxResults: 15,
         q: recipeTerm + ' recipe'
     };
-    $.getJSON(YOUTUBE_SEARCH_URL, query, callback);
+    $.getJSON(YOUTUBE_SEARCH_URL, query, callback).done(function(){
+        displayVideos(state);
+        // getVideoLengths() -- this'll probably screw up cuz async
+    });
 }
 ////
 
@@ -43,7 +46,11 @@ var state = {
     //  }
     v_i: 0,                      // video index
 
-    videoResults: [],
+    videoResults: [], // an array of objects =
+    //  {
+    //   innerHTML: elements going into our outer link,
+    //   video_id:  vid id to be inserted into anchor
+    //  }
     r_i: 0                      // recipe index
 };
 
@@ -65,7 +72,6 @@ function moreSearchResults(elementArray) {
 
 // consider function wrapper
 function populateRecipeResults(JSON) {
-    var resultsElement = '';
     JSON.matches.forEach(function(match){
         var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
         pic = `<img src="${pic}" alt="recipe result link"/>\n`;
@@ -79,8 +85,19 @@ function populateRecipeResults(JSON) {
     });
 }
 
-function populateVidResults() {
-    ;
+function populateVidResults(JSON) {
+    JSON.items.forEach(function(item){
+        var pic = `<img src="${item.snippet.thumbnails.high.url}"\n`;
+        var title = '<p>' + item.snippet.title + '</p>\n';
+        var author = '<p>' + item.snippet.channelTitle + '</p>\n';
+        var content = pic + title + author;
+
+        // var linked = `<a href="https://youtube.com/watch?v=${item.id.videoId}"`
+        //         + ` target="_blank">${content}</a>`;
+        // resultsElement += `<div class="video-element">${linked}</div>`;
+        addVideoResult( { innerHTML:content, video_id:item.id.videoId});
+    });
+    console.log(state.videoResults);
 }
 
 
@@ -99,22 +116,35 @@ function displayRecipes(state) {
     $('.recipe-results').html(resultsElement);
 }
 
-function displayVideos(JSON) {
+function displayVideos(state) {
     var resultsElement = '<h2>Video results</h2>';
-    if (JSON.items.length > 0) {
-        JSON.items.forEach(function(item){
-            var pic = `<img src="${item.snippet.thumbnails.high.url}"`;
-            var title = '<p>' + item.snippet.title + '</p>';
-            var author = '<p>' + item.snippet.channelTitle + '</p>';
-            var content = pic + title + author;
-
-            var linked = `<a href="https://youtube.com/watch?v=${item.id.videoId}"`
-                    + ` target="_blank">${content}</a>`;
-            resultsElement += `<div class="video-element">${linked}</div>`;
-        });
+    var elms = moreSearchResults(state.videoResults);
+    if (elms.length > 0) {
+        for (var v of elms) {
+            var videoLen = '0:00'
+            var len = `<p>${videoLen}</p>\n`
+            var linked = `<a href="https://youtube.com/watch?v=`
+                +`${v.videoId}" target="_blank">${v.innerHTML+len}</a>`;
+            resultsElement += linked;
+        }
     } else {
-        resultsElement += '<p>Looks like there aren\'t any video results :\'(';
+            resultsElement += '<p>Looks like there aren\'t any video results :\'(';
     }
+    // }
+    // if (JSON.items.length > 0) {
+    //     JSON.items.forEach(function(item){
+    //         var pic = `<img src="${item.snippet.thumbnails.high.url}"`;
+    //         var title = '<p>' + item.snippet.title + '</p>';
+    //         var author = '<p>' + item.snippet.channelTitle + '</p>';
+    //         var content = pic + title + author;
+
+    //         var linked = `<a href="https://youtube.com/watch?v=${item.id.videoId}"`
+    //                 + ` target="_blank">${content}</a>`;
+    //         resultsElement += `<div class="video-element">${linked}</div>`;
+    //     });
+    // } else {
+        //     resultsElement += '<p>Looks like there aren\'t any video results :\'(';
+    // }
     $('.video-results').html(resultsElement);
 }
 
@@ -124,7 +154,7 @@ function watchSubmit() {
         var query = $(this).find('.search-text').val();
         getYummlyResults(query, state, populateRecipeResults);
         // getYouTubeSearch(query, displayVideos);
-        getYouTubeSearch(query, populateVidResults);
+        getYouTubeSearch(query, state, populateVidResults);
     });
 }
 
