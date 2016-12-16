@@ -11,7 +11,7 @@ var YUMMLY_SEARCH_URL  = 'http://api.yummly.com/v1/api/recipes';
 var YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 ////
-function getYummlyResults(recipeTerm, callback) {
+function getYummlyResults(recipeTerm, state, callback) {
     var query = {
         _app_id: '4ba1f977',
         _app_key: '39f9fbb286bd0487912476146ded5807',
@@ -19,9 +19,9 @@ function getYummlyResults(recipeTerm, callback) {
         q: recipeTerm,
         requirePictures: true
     };
-    $.getJSON(YUMMLY_SEARCH_URL, query, callback).done(
-        displayRecipes
-    );
+    $.getJSON(YUMMLY_SEARCH_URL, query, callback).done(function(){
+        displayRecipes(state);
+    });
 }
 
 function getYouTubeSearch(recipeTerm, callback) {
@@ -52,24 +52,15 @@ function addRecipeResult(object) {
     state.r_i++;
 }
 
-function getThreeRecipes() {
-    // return state.recipeResults[state.r_i];
-    var i = state.r_i;
-    return state.recipeResults.splice(i, i+3);
-}
-
-function zeroRecipeIndex() {
-    state.r_i = 0;
+function addVideoResult(object) {
+    state.videoResults[state.v_i] = object;
+    state.v_i++;
 }
 
 function moreSearchResults(elementArray) {
     // Takes recipeResults or videoResults (arrays of HTML),
     // and shaves off the (remaining) first three elements.
     return elementArray.splice(0, 3);
-}
-
-function populateVidResults() {
-    ;
 }
 
 // consider function wrapper
@@ -86,14 +77,16 @@ function populateRecipeResults(JSON) {
         var content = pic + title + ingredients + cookMinutes;
         addRecipeResult({ innerHTML:content, recipe_no:match.id });
     });
-    zeroRecipeIndex();
-    console.log(state.recipeResults);
 }
 
-// NEWWWWW
-function displayRecipes() {
+function populateVidResults() {
+    ;
+}
+
+
+function displayRecipes(state) {
     var resultsElement = '<h2>Recipe results</h2>';
-    var elms = getThreeRecipes();
+    var elms = moreSearchResults(state.recipeResults);
     if (elms.length > 0) {
         for (var r of elms) {
             var linked = `<a href="http://www.yummly.com/recipe/`
@@ -105,36 +98,6 @@ function displayRecipes() {
     }
     $('.recipe-results').html(resultsElement);
 }
-
-// function displayRecipes(JSON) {
-//     var resultsElement = '<h2>Recipe results</h2>';
-//     if (JSON.matches.length > 0) {
-//         JSON.matches.forEach(function(match){
-//             var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
-//             pic = `<img src="${pic}" alt="recipe result link"/>`;
-//             var title = `<p>${match.recipeName}</p>`;
-
-//             var cookMinutes = `<p>cooktime: ${match.totalTimeInSeconds/60} minutes</p>`;
-//             var ingredients = `<p>${match.ingredients.join(', ')}</p>`;
-
-//             var content = pic + title + ingredients + cookMinutes;
-//             var linked = `<a href="http://www.yummly.com/recipe/${match.id}"`
-//                     +` target="_blank">${content}</a>`;
-
-//             console.log( `title:       ${title}\n`
-//                        + `recipeURL:   ${linked}\n`
-//                        + `cookMinutes: ${cookMinutes}\n`
-//                        + `ingredients: ${ingredients}\n`
-//                        + `pic:         ${pic}`);
-
-//             resultsElement += `<div class="recipe-element">${linked}</div>`;
-//         });
-//     } else {
-//         resultsElement += '<p>Looks like there aren\'t any recipes for that search :(</p>';
-//     }
-//     $('.recipe-results').html(resultsElement);
-// }
-
 
 function displayVideos(JSON) {
     var resultsElement = '<h2>Video results</h2>';
@@ -159,8 +122,9 @@ function watchSubmit() {
     $('.search-form').submit(function(e){
         e.preventDefault();
         var query = $(this).find('.search-text').val();
-        getYummlyResults(query, populateRecipeResults);
-        getYouTubeSearch(query, displayVideos);
+        getYummlyResults(query, state, populateRecipeResults);
+        // getYouTubeSearch(query, displayVideos);
+        getYouTubeSearch(query, populateVidResults);
     });
 }
 
