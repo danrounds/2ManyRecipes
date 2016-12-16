@@ -2,7 +2,8 @@
     ;
 }
 
-.video-element {
+.video-element+recipe-element {
     display: inline-block;
     width: 480px;
 }
+
