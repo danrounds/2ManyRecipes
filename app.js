@@ -32,7 +32,7 @@ function getYouTubeSearch(recipeTerm, callback) {
         maxResults: 15,
         q: recipeTerm + ' recipe'
     };
-    return $.getJSON(YOUTUBE_SEARCH_URL, query, callback)
+    return $.getJSON(YOUTUBE_SEARCH_URL, query, callback);
 }
 
 function getVideoIDs(state){
@@ -51,8 +51,8 @@ function makeIDQuery(videoResults) {
     }
     return id;
 }
-////
 
+//// state & state-altering functions
 var state = {
     v_i: 0,                      // video index
     recipeResults: [ ],   // Array of objects -- key:val,
@@ -66,8 +66,8 @@ var state = {
     IDtoLength: {}
 };
 
-function addRecipeResult(object) {
-    state.recipeResults[state.r_i] = object;
+function addRecipeResult(HTML) {
+    state.recipeResults[state.r_i] = HTML;
     state.r_i++;
 }
 
@@ -84,7 +84,6 @@ function parseTimeStamp(item) {
     return tStamp.slice(2, -1).replace('M', ':');
 }
 
-
 function addVideoResult(object) {
     state.videoResults[state.v_i] = object;
     state.v_i++;
@@ -96,8 +95,9 @@ function moreSearchResults(elementArray) {
     return elementArray.splice(0, 3);
 }
 
-// consider function wrapper
 function populateRecipeResults(JSON) {
+    // workhorse function, processing our recipe results into
+    // an array of mostly-formed HTML
     JSON.matches.forEach(function(match){
         var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
         pic = `<img src="${pic}" alt="recipe result link"/>\n`;
@@ -105,22 +105,25 @@ function populateRecipeResults(JSON) {
         var title = `<p>${match.recipeName}</p>\n`;
         var cookMinutes = `<p>cooktime: ${match.totalTimeInSeconds/60} minutes</p>\n`;
         var ingredients = `<p>${match.ingredients.join(', ')}</p>\n`;
-
         var content = pic + title + ingredients + cookMinutes;
-        addRecipeResult({ innerHTML:content, recipe_no:match.id });
+
+        var linked = `<a href="http://www.yummly.com/recipe/`
+            +`${match.id}" target="_blank">${content}</a>`;
+
+        // addRecipeResult({ innerHTML:content, recipe_no:match.id });
+        addRecipeResult(linked);
     });
 }
 
 function populateVidResults(JSON) {
+    // workhorse function, processing our video results into
+    // an array of mostly-formed HTML
     JSON.items.forEach(function(item){
         var pic = `<img src="${item.snippet.thumbnails.high.url}"\n`;
         var title = '<p>' + item.snippet.title + '</p>\n';
         var author = '<p>' + item.snippet.channelTitle + '</p>\n';
         var content = pic + title + author;
 
-        // var linked = `<a href="https://youtube.com/watch?v=${item.id.videoId}"`
-        //         + ` target="_blank">${content}</a>`;
-        // resultsElement += `<div class="video-element">${linked}</div>`;
         addVideoResult( { innerHTML:content, id:item.id.videoId});
     });
 }
@@ -130,10 +133,8 @@ function displayRecipes(state) {
     var resultsElement = '<h2>Recipe results</h2>';
     var elms = moreSearchResults(state.recipeResults);
     if (elms.length > 0) {
-        for (var r of elms) {
-            var linked = `<a href="http://www.yummly.com/recipe/`
-                +`${r.recipe_no}" target="_blank">${r.innerHTML}</a>`;
-            resultsElement += linked;
+        for (var i in elms) {
+            resultsElement += elms[i];
         }
     } else {
         resultsElement += '<p>Looks like there aren\'t any recipes for that search :(</p>';
@@ -169,8 +170,8 @@ function watchSubmit() {
 
         getYouTubeSearch(query, populateVidResults).done(function(){
             getVideoIDs(state).done(function(){
-                displayVideos(state);
-            });
+                displayVideos(state); // don't want to display results
+            });                       // before we have results.
         });
 
     });
