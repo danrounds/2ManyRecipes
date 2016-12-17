@@ -130,41 +130,24 @@ function populateVidResults(JSON) {
 
 function displayRecipes(state) {
     var resultsElement = '<h2>Recipe results</h2>';
-    var elms = moreSearchResults(state.recipeResults);
-    var button = '';
-    if (elms.length > 0) {
-        button = '<button type="button">More!</button>';
-        for (var i in elms) {
-            resultsElement += elms[i];
+    var elems = moreSearchResults(state.recipeResults);
+    if (elems.length > 0) {
+        for (var i in elems) {
+            resultsElement += elems[i];
         }
+        resultsElement += '<button class="more-recipes">More!</button>';
+
     } else {
-        if (state.r_i > i) {
+        if (state.r_i > i) 
             resultsElement += 'Guess we\'re fresh out of recipes';
-        } else {
+        else
             resultsElement += '<p>Looks Like there aren\'t any recipes for that search :(</p>';
-        }
     }
-    resultsElement += button;
+
     $('.recipe-results').html(resultsElement);
-    $('button').click(function() {
-        displayRecipes(state);
-    });
-  
+    $('button').click(function() { displayRecipes(state); });
 }
 
-
-// function displayRecipes(state) {
-//     var resultsElement = '<h2>Recipe results</h2>';
-//     var elms = moreSearchResults(state.recipeResults);
-//     if (elms.length > 0) {
-//         for (var i in elms) {
-//             resultsElement += elms[i];
-//         }
-//     } else {
-//         resultsElement += '<p>Looks like there aren\'t any recipes for that search :(</p>';
-//     }
-//     $('.recipe-results').html(resultsElement);
-// }
 
 function displayVideos(state) {
     var resultsElement = '<h2>Video results</h2>';
