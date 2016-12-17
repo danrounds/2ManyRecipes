@@ -54,16 +54,17 @@ function makeIDQuery(videoResults) {
 
 //// state & state-altering functions
 var state = {
-    v_i: 0,                      // video index
-    recipeResults: [ ],   // Array of objects -- key:val,
-    //   innerHTML: elements going into our outer link,
-    //   recipe_no: recipe #, to be inserted into anchor
+    clean: function() {
+        state.v_i = 0;             // video index
+        state.recipeResults = [ ]; // Array of HTML --
+        // each i is a search result
 
-    r_i: 0,                      // recipe index
-    videoResults: [],     // Array of objects -- key:val
-    //   innerHTML: elements going into our outer link,
-    //   id:  vid id to be inserted into anchor
-    IDtoLength: {}
+        state.r_i = 0;           // recipe index
+        state.videoResults = []; // Array of objects -- key:val
+        //   innerHTML: elements going into our outer link,
+        //   id:  vid id to be inserted into anchor
+        state.IDtoLength = {};
+    }
 };
 
 function addRecipeResult(HTML) {
@@ -75,7 +76,6 @@ function makeVidLengths(JSON) {
     JSON.items.forEach(function(item){
         state.IDtoLength[item.id] = parseTimeStamp(item);
     });
-    console.log(state.IDtoLength);
 }
 
 function parseTimeStamp(item) {
@@ -164,6 +164,7 @@ function watchSubmit() {
         e.preventDefault();
         var query = $(this).find('.search-text').val();
 
+        state.clean();
         getYummlyResults(query, populateRecipeResults).done(function(){
             displayRecipes(state);
         });
