@@ -145,26 +145,52 @@ function displayRecipes(state) {
     }
 
     $('.recipe-results').html(resultsElement);
-    $('button').click(function() { displayRecipes(state); });
+    $('.more-recipes').click(function() { displayRecipes(state); });
 }
 
 
 function displayVideos(state) {
     var resultsElement = '<h2>Video results</h2>';
-    var elms = moreSearchResults(state.videoResults);
-    if (elms.length > 0) {
-        for (var v of elms) {
+    var elems = moreSearchResults(state.videoResults);
+    if (elems.length > 0) {
+        for (var v of elems) {
             var videoLen = state.IDtoLength[v.id];
             var len = `<p>${videoLen}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
                 +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
             resultsElement += linked;
         }
+        resultsElement += '<button class="more-videos">More!</button>';
+
     } else {
+        if (state.r_i > v)
+            resultsElement += 'Guess we\'re out of YouTube vids to show you.';
+        else
             resultsElement += '<p>Looks like there aren\'t any video results :\'(';
     }
+
     $('.video-results').html(resultsElement);
+    $('.more-videos').click(function() { displayVideos(state); });
+
 }
+
+
+// function displayVideos(state) {
+//     var resultsElement = '<h2>Video results</h2>';
+//     var elms = moreSearchResults(state.videoResults);
+//     if (elms.length > 0) {
+//         for (var v of elms) {
+//             var videoLen = state.IDtoLength[v.id];
+//             var len = `<p>${videoLen}</p>\n`;
+//             var linked = `<a href="https://youtube.com/watch?v=`
+//                 +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
+//             resultsElement += linked;
+//         }
+//     } else {
+//             resultsElement += '<p>Looks like there aren\'t any video results :\'(';
+//     }
+//     $('.video-results').html(resultsElement);
+// }
 
 function watchSubmit() {
     $('.search-form').submit(function(e){
