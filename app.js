@@ -7,7 +7,7 @@
 // to-dos:
 //   add length of videos
 
-var YUMMLY_SEARCH_URL  = 'http://api.yummly.com/v1/api/recipes';
+var YUMMLY_SEARCH_URL  = 'https://api.yummly.com/v1/api/recipes';
 var YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 var YOUTUBE_VID_INQ = 'https://www.googleapis.com/youtube/v3/videos';
 var YOUTUBE_KEY = 'AIzaSyBTNjgDxhK8Valx49hGTSgVJ0wkjCYaqwk';
@@ -156,6 +156,11 @@ function displayRecipes(state) {
     $('.more-recipes').click(function() { displayRecipes(state); });
 }
 
+// function scrollSave(callback, data) {
+//     var pagePosition = $(window).scrollTop();
+//      callback(data);
+//     $(window).scrollTop(pagePosition);
+// }
 
 function displayVideos(state) {
     var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
@@ -184,7 +189,10 @@ function displayVideos(state) {
     }
 
     $('.video-results').html(resultsElement);
-    $('.more-videos').click(function() { displayVideos(state); });
+    $('.more-videos').click(function() {
+        displayVideos(state);
+    });
+
 
 }
 
@@ -208,4 +216,6 @@ function watchSubmit() {
     });
 }
 
-$(function(){ watchSubmit(); });
+$(function(){
+    watchSubmit();
+});
