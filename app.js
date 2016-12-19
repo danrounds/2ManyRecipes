@@ -57,7 +57,7 @@ var state = {
     clean: function() {
         state.v_i = 0;             // video index
         state.recipeResults = [ ]; // Array of HTML --
-        // each i is a search result
+        // each *i is a search result
 
         state.r_i = 0;           // recipe index
         state.videoResults = []; // Array of objects -- key:val
@@ -100,18 +100,22 @@ function populateRecipeResults(JSON) {
     // an array of mostly-formed HTML
     JSON.matches.forEach(function(match){
         var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
-        pic = `<img src="${pic}" alt="recipe result link"/>\n`;
+        pic = '<div class="img-cover">'
+            +`<img class="thumb img-responsive" src="${pic}" alt="recipe result link"/></div>\n`;
 
-        var title = `<p>${match.recipeName}</p>\n`;
-        var cookMinutes = `<p>cooktime: ${match.totalTimeInSeconds/60} minutes</p>\n`;
-        var ingredients = `<p>${match.ingredients.join(', ')}</p>\n`;
+        var title = `<h5>${match.recipeName}</h5>\n`;
+        var cookMinutes = `<p class="under-text">cooktime: ${match.totalTimeInSeconds/60} minutes</p>\n`;
+        var ingredients = `<p class="bottom-text">${match.ingredients.join(', ')}</p>\n`;
         var content = pic + title + ingredients + cookMinutes;
 
         var linked = `<a href="http://www.yummly.com/recipe/`
             +`${match.id}" target="_blank">${content}</a>`;
 
+        var divd = `<div class="col-md-4 result">${linked}</div>`;
+
         // addRecipeResult({ innerHTML:content, recipe_no:match.id });
-        addRecipeResult(linked);
+        // addRecipeResult(linked);
+        addRecipeResult(divd);
     });
 }
 
@@ -119,9 +123,9 @@ function populateVidResults(JSON) {
     // workhorse function, processing our video results into
     // an array of mostly-formed HTML
     JSON.items.forEach(function(item){
-        var pic = `<img src="${item.snippet.thumbnails.high.url}"\n`;
-        var title = '<p>' + item.snippet.title + '</p>\n';
-        var author = '<p>' + item.snippet.channelTitle + '</p>\n';
+        var pic = `<div class="img-cover"><img class="thumb img-responsive" src="${item.snippet.thumbnails.high.url}"></div>\n`;
+        var title = '<h5>' + item.snippet.title + '</h5>\n';
+        var author = '<p class="bottom-text">' + item.snippet.channelTitle + '</p>\n';
         var content = pic + title + author;
 
         addVideoResult( { innerHTML:content, id:item.id.videoId});
@@ -129,13 +133,17 @@ function populateVidResults(JSON) {
 }
 
 function displayRecipes(state) {
-    var resultsElement = '<h2>Recipe results</h2>';
+    // var resultsElement = '<h2>Recipe results</h2>';
+    var resultsElement = '<div class="col-md-12"><h2>Recipes</h2></div>';
     var elems = moreSearchResults(state.recipeResults);
     if (elems.length > 0) {
         for (var i in elems) {
             resultsElement += elems[i];
         }
-        resultsElement += '<button class="more-recipes">More!</button>';
+        // resultsElement += '<button class="more-recipes">More!</button>';
+        resultsElement += '<div class="col-md-1 col-md-push-11">'
+            +'<button class="btn btn-warning more-recipes">more</button>'
+            +'</div>';
 
     } else {
         if (state.r_i > i) 
@@ -150,18 +158,23 @@ function displayRecipes(state) {
 
 
 function displayVideos(state) {
-    var resultsElement = '<h2>Video results</h2>';
+    var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
     var elems = moreSearchResults(state.videoResults);
     if (elems.length > 0) {
         for (var v of elems) {
-            var len = `<p>${state.IDtoLength[v.id]}</p>\n`;
+            var len = `<p class="under-text">${state.IDtoLength[v.id]}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
                 +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
-            var divd = `<div class="video-element">${linked}</div>`; 
+            var divd = `<div class="col-md-4 result">${linked}</div>`; 
             // resultsElement += linked;
             resultsElement += divd;
         }
-        resultsElement += '<button class="more-videos">More!</button>';
+        // resultsElement += '<button class="more-videos">More!</button>';
+
+        resultsElement += '<div class="col-md-1 col-md-push-11">'
+            +'<button class="btn btn-warning more-videos">more</button>'
+            +'</div>';
+
 
     } else {
         if (state.r_i > v)
