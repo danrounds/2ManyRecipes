@@ -35,7 +35,7 @@ function getVideoIDs(state){
     var query = {
         key: YOUTUBE_KEY,
         part: 'contentDetails',
-        id: makeIDQuery(state.videoResults)
+        id: makeIDQuery(state.videos.results)
     };
     return $.getJSON(YOUTUBE_VID_INQ, query, makeVidLengths);
 }
@@ -51,40 +51,43 @@ function makeIDQuery(videoResults) {
 //// state & state-altering functions
 var state = {
     clean: function() {
-        state.v_i = 0;             // video index
-        state.recipeResults = [ ]; // Array of HTML --
-        // each *i is a search result
+        state.recipes = {
+            i: 0,               // Index
+            results: []         // Elems are HTML of displayable results
+        };
 
-        state.r_i = 0;           // recipe index
-        state.videoResults = []; // Array of objects -- key:val
-        //   innerHTML: elements going into our outer link,
-        //   id:  vid id to be inserted into anchor
-        state.IDtoLength = {};
+        state.videos = {
+            i: 0,               // Index
+            results: [],        // Elems are HTML of mostly-displayable results
+            // ...that need some love at display time
+            IDsToLength: {}     // Mapping of video IDs to their run time.
+        };                      // Inserted into the above HTML at display time
     }
 };
 
 function addRecipeResult(HTML) {
-    state.recipeResults[state.r_i] = HTML;
-    state.r_i++;
+    state.recipes.results[state.recipes.i] = HTML;
+    state.recipes.i++;
 }
 
 function addVideoResult(object) {
-    state.videoResults[state.v_i] = object;
-    state.v_i++;
+    state.videos.results[state.videos.i] = object;
+    state.videos.i++;
+}
+
+function resetRecipe_i() {
+    state.recipes.i = 0;
+}
+
+function resetVideo_i() {
+    state.videos.i = 0;
 }
 
 function makeVidLengths(JSON) {
     JSON.items.forEach(function(item){
-        state.IDtoLength[item.id] = parseTimeStamp(item);
+        console.log(JSON);
+        state.videos.IDsToLength[item.id] = parseTimeStamp(item);
     });
-}
-
-function resetRecipe_i() {
-    state.r_i = 0;
-}
-
-function resetVideo_i() {
-    state.v_i = 0;
 }
 
 function parseTimeStamp(item) {
@@ -93,19 +96,9 @@ function parseTimeStamp(item) {
     return tStamp.slice(2, -1).replace('M', ':');
 }
 
-
 function moreSearchResults(elementArray, type) {
-    // Takes recipeResults or videoResults (arrays of HTML),
-    // and shaves off the (remaining) first three elements.
-    // return elementArray.splice(0, 3);
-    if (type == 'recipe') {
-        var val = elementArray.slice(state.r_i, state.r_i+3);
-        state.r_i += 3;
-    } else {
-        val = elementArray.slice(state.v_i, state.v_i+3);
-        state.v_i += 3;
-    }
-    return val;
+    elementArray.i += 3;
+    return elementArray.results.slice(elementArray.i-3, elementArray.i);
 }
 
 function populateRecipeResults(JSON) {
@@ -126,8 +119,6 @@ function populateRecipeResults(JSON) {
 
         var divd = `<div class="col-md-4 result">${linked}</div>`;
 
-        // addRecipeResult({ innerHTML:content, recipe_no:match.id });
-        // addRecipeResult(linked);
         addRecipeResult(divd);
     });
     resetRecipe_i();
@@ -157,12 +148,11 @@ function stopScroll(e, callback, data) {
 function displayRecipes(state) {
     // var resultsElement = '<h2>Recipe results</h2>';
     var resultsElement = '<div class="row"><div class="col-md-12"><h2>Recipes</h2></div>';
-    var elems = moreSearchResults(state.recipeResults, 'recipe');
+    var elems = moreSearchResults(state.recipes, 'recipe');
     if (elems.length > 0) {
         for (var i in elems) {
             resultsElement += elems[i];
         }
-        // resultsElement += '<button class="more-recipes">More!</button>';
         resultsElement += '</div><div class="row"><div class="col-md-1 col-md-push-11">'
             +'<button class="btn btn-warning more-recipes">more</button>'
             +'</div></div>';
@@ -173,7 +163,7 @@ function displayRecipes(state) {
         });
 
     } else {
-        if (!state.r_i) {
+        if (!state.recipes.i) {
             resultsElement += '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
             $('.recipe-results').html(resultsElement);
         } else {
@@ -190,14 +180,15 @@ function displayRecipes(state) {
 
 function displayVideos(state) {
     var resultsElement = '<div class="row"><div class="col-md-12"><h2>Videos</h2></div>';
-    var elems = moreSearchResults(state.videoResults);
+    // var elems = moreSearchResults(state.videoResults);
+    var elems = moreSearchResults(state.videos);
     if (elems.length > 0) {
         for (var v of elems) {
-            var len = `<p class="under-text">${state.IDtoLength[v.id]}</p>\n`;
+            var len = `<p class="under-text">${state.videos.IDsToLength[v.id]}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
                 +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
             var divd = `<div class="col-md-4 result">${linked}</div>`; 
-            // resultsElement += linked;
+
             resultsElement += divd;
         }
 
@@ -210,7 +201,7 @@ function displayVideos(state) {
             stopScroll(e, displayVideos, state);
         });
     } else {
-        if (!state.r_i) {
+        if (!state.videos.i) {
             resultsElement += '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
             $('.video-results').html(resultsElement);
         } else {      
@@ -239,7 +230,7 @@ function watchSubmit() {
         getYouTubeSearch(query, populateVidResults).done(function(){
             getVideoIDs(state).done(function(){
                 displayVideos(state); // don't want to display results
-            });                       // before we have results.
+            });                       // before we /have/ results.
         });
 
     });
