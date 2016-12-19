@@ -1,11 +1,7 @@
 'use strict';
 
-// stretch:
-//   get diet-specific (vegetarian, vegan) recipes
-//   get recipes with specific ingredients
-
 // to-dos:
-//   add length of videos
+//   format length of videos
 
 var YUMMLY_SEARCH_URL  = 'https://api.yummly.com/v1/api/recipes';
 var YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
@@ -72,10 +68,23 @@ function addRecipeResult(HTML) {
     state.r_i++;
 }
 
+function addVideoResult(object) {
+    state.videoResults[state.v_i] = object;
+    state.v_i++;
+}
+
 function makeVidLengths(JSON) {
     JSON.items.forEach(function(item){
         state.IDtoLength[item.id] = parseTimeStamp(item);
     });
+}
+
+function resetRecipe_i() {
+    state.r_i = 0;
+}
+
+function resetVideo_i() {
+    state.v_i = 0;
 }
 
 function parseTimeStamp(item) {
@@ -84,15 +93,19 @@ function parseTimeStamp(item) {
     return tStamp.slice(2, -1).replace('M', ':');
 }
 
-function addVideoResult(object) {
-    state.videoResults[state.v_i] = object;
-    state.v_i++;
-}
 
-function moreSearchResults(elementArray) {
+function moreSearchResults(elementArray, type) {
     // Takes recipeResults or videoResults (arrays of HTML),
     // and shaves off the (remaining) first three elements.
-    return elementArray.splice(0, 3);
+    // return elementArray.splice(0, 3);
+    if (type == 'recipe') {
+        var val = elementArray.slice(state.r_i, state.r_i+3);
+        state.r_i += 3;
+    } else {
+        val = elementArray.slice(state.v_i, state.v_i+3);
+        state.v_i += 3;
+    }
+    return val;
 }
 
 function populateRecipeResults(JSON) {
@@ -117,6 +130,7 @@ function populateRecipeResults(JSON) {
         // addRecipeResult(linked);
         addRecipeResult(divd);
     });
+    resetRecipe_i();
 }
 
 function populateVidResults(JSON) {
@@ -130,12 +144,20 @@ function populateVidResults(JSON) {
 
         addVideoResult( { innerHTML:content, id:item.id.videoId});
     });
+    resetVideo_i();
+}
+
+function stopScroll(e, callback, data) {
+    e.preventDefault();
+    var scrollPoint = $(window).scrollTop();
+    callback(data);
+    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 150);
 }
 
 function displayRecipes(state) {
     // var resultsElement = '<h2>Recipe results</h2>';
     var resultsElement = '<div class="row"><div class="col-md-12"><h2>Recipes</h2></div>';
-    var elems = moreSearchResults(state.recipeResults);
+    var elems = moreSearchResults(state.recipeResults, 'recipe');
     if (elems.length > 0) {
         for (var i in elems) {
             resultsElement += elems[i];
@@ -145,26 +167,25 @@ function displayRecipes(state) {
             +'<button class="btn btn-warning more-recipes">more</button>'
             +'</div></div>';
 
+        $('.recipe-results').html(resultsElement);
+        $('.more-recipes').click(function(e){
+            stopScroll(e, displayRecipes, state);
+        });
+
     } else {
-        if (state.r_i > i) 
-            resultsElement += '<div class="col-md-12"><p>Guess we\'re fresh out of recipes</p></div>';
-        else
+        if (!state.r_i) {
             resultsElement += '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
+            $('.recipe-results').html(resultsElement);
+        } else {
+            resultsElement += '<div class="col-md-12"><p>Guess we\'re fresh out of recipes. <a href=# class="recipe-again">See \'em, again?</a></p></div>';
+            $('.recipe-results').html(resultsElement);
+            $('.recipe-again').click(function(e) {
+                e.preventDefault();
+                resetRecipe_i();
+                displayRecipes(state);
+            });
+        }
     }
-
-    $('.recipe-results').html(resultsElement);
-    // $('.more-recipes').click(function() { displayRecipes(state); });
-    $('.more-recipes').click(function(e){
-        stopScroll(e, displayRecipes, state);
-    });
-
-}
-
-function stopScroll(e, callback, data) {
-    e.preventDefault();
-    var scrollPoint = $(window).scrollTop();
-    callback(data);
-    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 150);
 }
 
 function displayVideos(state) {
@@ -179,31 +200,30 @@ function displayVideos(state) {
             // resultsElement += linked;
             resultsElement += divd;
         }
-        // resultsElement += '<button class="more-videos">More!</button>';
 
         resultsElement += '</div><div class="row"><div class="col-md-1 col-md-push-11">'
             +'<button class="btn btn-warning more-videos">more</button>'
             +'</div></div>';
 
+        $('.video-results').html(resultsElement);
+        $('.more-videos').click(function(e) {
+            stopScroll(e, displayVideos, state);
+        });
     } else {
-        if (state.r_i > v)
-            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you.</p></div>';
-        else
+        if (!state.r_i) {
             resultsElement += '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
+            $('.video-results').html(resultsElement);
+        } else {      
+            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href=# class="video-again">See \'em, again?</a></p>';
+            $('.video-results').html(resultsElement);
+            $('.video-again').click(function(e) {
+                e.preventDefault();
+                resetVideo_i();
+                displayVideos(state);
+            });
+        }
     }
 
-    $('.video-results').html(resultsElement);
-    // $('.more-videos').click(function(event) {
-    //     event.preventDefault();
-    //     var whatever = $(window).scrollTop();
-    //     displayVideos(state);
-    //     setTimeout(function(){
-    //         $(window).scrollTop(whatever);
-    //     }, 200);
-    // });
-    $('.more-videos').click(function(e) {
-        stopScroll(e, displayVideos, state);
-    });
 }
 
 function watchSubmit() {

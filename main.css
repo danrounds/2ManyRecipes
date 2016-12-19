@@ -86,3 +86,10 @@ h5 {
     width: 100%;
 }
 
+a {
+    color: #a00;
+}
+
+a:hover {
+    color: #e00;
+}
