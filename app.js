@@ -153,7 +153,18 @@ function displayRecipes(state) {
     }
 
     $('.recipe-results').html(resultsElement);
-    $('.more-recipes').click(function() { displayRecipes(state); });
+    // $('.more-recipes').click(function() { displayRecipes(state); });
+    $('.more-recipes').click(function(e){
+        stopScroll(e, displayRecipes, state);
+    });
+
+}
+
+function stopScroll(e, callback, data) {
+    e.preventDefault();
+    var scrollPoint = $(window).scrollTop();
+    callback(data);
+    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 200);
 }
 
 function displayVideos(state) {
@@ -182,11 +193,16 @@ function displayVideos(state) {
     }
 
     $('.video-results').html(resultsElement);
-    $('.more-videos').click(function(event) {
-        event.preventDefault();
-        var whatever = $(window).scrollTop();
-        displayVideos(state);
-        $(window).scrollTop(whatever);
+    // $('.more-videos').click(function(event) {
+    //     event.preventDefault();
+    //     var whatever = $(window).scrollTop();
+    //     displayVideos(state);
+    //     setTimeout(function(){
+    //         $(window).scrollTop(whatever);
+    //     }, 200);
+    // });
+    $('.more-videos').click(function(e) {
+        stopScroll(e, displayVideos, state);
     });
 }
 
@@ -209,6 +225,4 @@ function watchSubmit() {
     });
 }
 
-$(function(){
-    watchSubmit();
-});
+$(function(){ watchSubmit(); });
