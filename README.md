@@ -19,6 +19,8 @@ Tech used:
 
 To-do:
 
+* Clean up index.html and subfolders--make sure we're using files we need
+
 * Clean-up JS
 
 * Add animations
