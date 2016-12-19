@@ -237,7 +237,6 @@ function displayVideos(videos) {
             addRepeatResults('.video-again', videos, displayVideos);
         }
     }
-
 }
 
 // Submission event handler
