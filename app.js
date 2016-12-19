@@ -134,16 +134,16 @@ function populateVidResults(JSON) {
 
 function displayRecipes(state) {
     // var resultsElement = '<h2>Recipe results</h2>';
-    var resultsElement = '<div class="col-md-12"><h2>Recipes</h2></div>';
+    var resultsElement = '<div class="row"><div class="col-md-12"><h2>Recipes</h2></div>';
     var elems = moreSearchResults(state.recipeResults);
     if (elems.length > 0) {
         for (var i in elems) {
             resultsElement += elems[i];
         }
         // resultsElement += '<button class="more-recipes">More!</button>';
-        resultsElement += '<div class="col-md-1 col-md-push-11">'
+        resultsElement += '</div><div class="row"><div class="col-md-1 col-md-push-11">'
             +'<button class="btn btn-warning more-recipes">more</button>'
-            +'</div>';
+            +'</div></div>';
 
     } else {
         if (state.r_i > i) 
@@ -157,7 +157,7 @@ function displayRecipes(state) {
 }
 
 function displayVideos(state) {
-    var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
+    var resultsElement = '<div class="row"><div class="col-md-12"><h2>Videos</h2></div>';
     var elems = moreSearchResults(state.videoResults);
     if (elems.length > 0) {
         for (var v of elems) {
@@ -170,9 +170,9 @@ function displayVideos(state) {
         }
         // resultsElement += '<button class="more-videos">More!</button>';
 
-        resultsElement += '<div class="col-md-1 col-md-push-11">'
+        resultsElement += '</div><div class="row"><div class="col-md-1 col-md-push-11">'
             +'<button class="btn btn-warning more-videos">more</button>'
-            +'</div>';
+            +'</div></div>';
 
     } else {
         if (state.r_i > v)
@@ -182,11 +182,12 @@ function displayVideos(state) {
     }
 
     $('.video-results').html(resultsElement);
-    $('.more-videos').click(function() {
+    $('.more-videos').click(function(event) {
+        event.preventDefault();
+        var whatever = $(window).scrollTop();
         displayVideos(state);
+        $(window).scrollTop(whatever);
     });
-
-
 }
 
 function watchSubmit() {
