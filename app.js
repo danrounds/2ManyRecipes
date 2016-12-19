@@ -164,7 +164,7 @@ function stopScroll(e, callback, data) {
     e.preventDefault();
     var scrollPoint = $(window).scrollTop();
     callback(data);
-    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 200);
+    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 150);
 }
 
 function displayVideos(state) {
