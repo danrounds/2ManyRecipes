@@ -85,25 +85,30 @@ function resetVideo_i() {
 
 function makeVidLengths(JSON) {
     JSON.items.forEach(function(item){
-        console.log(JSON);
         state.videos.IDsToLength[item.id] = parseTimeStamp(item);
     });
 }
 
 function parseTimeStamp(item) {
-    // You'll have to play with formatting
-    var tStamp = item.contentDetails.duration;
-    return tStamp.slice(2, -1).replace('M', ':');
+    // converts YouTube's database string format to a human-readable one
+    var time = item.contentDetails.duration.slice(2, -1).split('M');
+    var tStamp = '0:';
+    if (time.length > 1) {
+        tStamp = time.shift() + ':';
+    }
+    if (time[0].length == 1) { time[0] = '0' + time[0]; }
+    return tStamp + time[0];
 }
 
-function moreSearchResults(elementArray, type) {
-    elementArray.i += 3;
-    return elementArray.results.slice(elementArray.i-3, elementArray.i);
+function moreSearchResults(object, type) {
+    // returns more results, in a form fit for displayRecipes or displayVideos
+    object.i += 3;
+    return object.results.slice(object.i-3, object.i);
 }
 
 function populateRecipeResults(JSON) {
-    // workhorse function, processing our recipe results into
-    // an array of mostly-formed HTML
+    // workhorse function, processes our recipe results into an array of mostly
+    // -formed HTML
     JSON.matches.forEach(function(match){
         var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
         pic = '<div class="img-cover">'
@@ -125,8 +130,8 @@ function populateRecipeResults(JSON) {
 }
 
 function populateVidResults(JSON) {
-    // workhorse function, processing our video results into
-    // an array of mostly-formed HTML
+    // workhorse function, processing our video results into an array of mostly
+    // -formed HTML
     JSON.items.forEach(function(item){
         var pic = `<div class="img-cover"><img class="thumb img-responsive" src="${item.snippet.thumbnails.high.url}"></div>\n`;
         var title = '<h5>' + item.snippet.title + '</h5>\n';

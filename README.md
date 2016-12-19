@@ -14,9 +14,8 @@ This project was an exercise in calling 3rd-party APIs and presenting data in a 
 
 ### To-do:
 
-* Clean up index.html and subfolders--make sure we're using files we need
+* Clean up index.html and subfolders--make sure we're using only files we need
 * Clean-up JS
-* Fix video timestamps
 * Add animations
 * Maybe add some patterns for styling (i.e. to break up the white monotony)
 * Add in-page attribution to Yummly and YouTube
