@@ -147,20 +147,14 @@ function displayRecipes(state) {
 
     } else {
         if (state.r_i > i) 
-            resultsElement += 'Guess we\'re fresh out of recipes';
+            resultsElement += '<div class="col-md-12"><p>Guess we\'re fresh out of recipes</p></div>';
         else
-            resultsElement += '<p>Looks Like there aren\'t any recipes for that search :(</p>';
+            resultsElement += '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
     }
 
     $('.recipe-results').html(resultsElement);
     $('.more-recipes').click(function() { displayRecipes(state); });
 }
-
-// function scrollSave(callback, data) {
-//     var pagePosition = $(window).scrollTop();
-//      callback(data);
-//     $(window).scrollTop(pagePosition);
-// }
 
 function displayVideos(state) {
     var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
@@ -180,12 +174,11 @@ function displayVideos(state) {
             +'<button class="btn btn-warning more-videos">more</button>'
             +'</div>';
 
-
     } else {
         if (state.r_i > v)
-            resultsElement += 'Guess we\'re out of YouTube vids to show you.';
+            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you.</p></div>';
         else
-            resultsElement += '<p>Looks like there aren\'t any video results :\'(';
+            resultsElement += '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
     }
 
     $('.video-results').html(resultsElement);
@@ -195,7 +188,6 @@ function displayVideos(state) {
 
 
 }
-
 
 function watchSubmit() {
     $('.search-form').submit(function(e){
