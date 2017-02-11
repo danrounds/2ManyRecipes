@@ -1,10 +1,12 @@
-body {
-    background-image: url('public/img/pattern.png'); /* via https://patterninja.com/ */
-}
+/* body { */
+/*     background-image: url('public/img/pattern.png'); /\* via https://patterninja.com/ *\/ */
+/* } */
 
-.container {
-    background-color: white;
-}
+/* .container { */
+/*     position: relative; */
+/*     z-index: -2; */
+/*     background-color: white; */
+/* } */
 
 h1 {
     color: #e00;
@@ -85,9 +87,9 @@ h5 {
 
 .thumb {
     position: relative;
-    z-index: -1;
     /* display:block; */
     width: 100%;
+    z-index: -1;
 }
 
 a {
