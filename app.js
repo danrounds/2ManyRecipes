@@ -232,7 +232,7 @@ function displayVideos(videos) {
             $('.video-results').html(resultsElement);
         } else {
             // We had videos (and now we'll loop 'em)
-            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href=# class="video-again">See \'em, again?</a></p>';
+            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href="#" class="video-again">See \'em, again?</a></p>';
             $('.video-results').html(resultsElement);
             addRepeatResults('.video-again', videos, displayVideos);
         }

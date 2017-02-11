@@ -1,6 +1,10 @@
-/* * { */
-/*     border: 1px solid #eee; */
-/* } */
+body {
+    background-image: url('public/img/pattern.png');
+}
+
+.container {
+    background-color: white;
+}
 
 h1 {
     color: #e00;
