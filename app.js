@@ -150,10 +150,14 @@ function stopScroll(e, callback, data) {
     // millisecond value might need tweaking; via trial and error, it seems fine
 }
 
+// function stopScroll(e, callback, data) {
+//     callback(data);
+// }
+
 function addButton(_class) {
-    return '<div class="row"><div class="col-md-1 col-md-push-11">'
+    return '<div class="row"><div class="col-md-12"><div class="col-md-1 col-md-push-11">'
         +`<button class="btn btn-warning ${_class}">more</button>`
-        + '</div></div>';
+        + '</div></div></div>';
 }
 
 // function addRepeatResults(_class, data, reset, displayFn) {
@@ -171,7 +175,9 @@ function displayRecipes(recipes) {
     // Changes the page-HTML to display our recipe results (or lack, thereof)
     // and inserts event handlers, so we can view `more results'
 
-    var resultsElement = '<div class="row"><div class="col-md-12"><h2>Recipes</h2></div>';
+    $('h2#recipes-title').text('Recipes');
+    // var resultsElement = '<div class="col-md-12"><h2>Recipes</h2></div>';
+    var resultsElement = '';
     var elems = moreSearchResults(recipes);
     if (elems.length > 0) {
         // We have more results
@@ -180,22 +186,27 @@ function displayRecipes(recipes) {
         }
         resultsElement += '</div>' + addButton('more-recipes');
 
-        $('.recipe-results').html(resultsElement);
+        $('#recipes').html(resultsElement);
         $('.more-recipes').click(function(e){
             stopScroll(e, displayRecipes, recipes);
         });
+
+        $('.more-recipes').click(function(e){
+            stopScroll(e, displayRecipes, recipes);
+        });
+
 
     } else {
         // No results
         if (!recipes.i) {
             // No results
             resultsElement += '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
-            $('.recipe-results').html(resultsElement);
+            $('#recipes').html(resultsElement);
 
         } else {
             // We had results (and now we'll loop 'em)
             resultsElement += '<div class="col-md-12"><p>Guess we\'re fresh out of recipes. <a href=# class="recipe-again">See \'em, again?</a></p></div>';
-            $('.recipe-results').html(resultsElement);
+            $('#recipes').html(resultsElement);
             addRepeatResults('.recipe-again', recipes, displayRecipes);
         }
     }
@@ -206,7 +217,7 @@ function displayVideos(videos) {
     // Changes the page-HTML to display our video results (or lack, thereof),
     // and inserts event handlers, so we can view `more results'
 
-    var resultsElement = '<div class="row"><div class="col-md-12"><h2>Videos</h2></div>';
+    var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
     // var elems = moreSearchResults(state.videos);
     var elems = moreSearchResults(videos);
     if (elems.length > 0) {
@@ -221,7 +232,7 @@ function displayVideos(videos) {
         }
         resultsElement += '</div>' + addButton('more-videos');
 
-        $('.video-results').html(resultsElement);
+        $('#videos').html(resultsElement);
         $('.more-videos').click(function(e) {
             stopScroll(e, displayVideos, videos);
         });
@@ -229,11 +240,11 @@ function displayVideos(videos) {
         // No videos
         if (!videos.i) {
             resultsElement += '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
-            $('.video-results').html(resultsElement);
+            $('#videos').html(resultsElement);
         } else {
             // We had videos (and now we'll loop 'em)
             resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href="#" class="video-again">See \'em, again?</a></p>';
-            $('.video-results').html(resultsElement);
+            $('#videos').html(resultsElement);
             addRepeatResults('.video-again', videos, displayVideos);
         }
     }

@@ -99,3 +99,14 @@ a {
 a:hover {
     color: #e00;
 }
+
+
+/* full-sized devices */
+@media screen and (min-width: 992px) {
+    #recipes {
+        height: 386px;
+    }
+    #videos {
+        height: 390px;
+    }
+}
