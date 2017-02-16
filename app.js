@@ -15,7 +15,6 @@ function getYummlyResults(recipeTerm, callback) {
         requirePictures: true
     };
     return $.getJSON(YUMMLY_SEARCH_URL, query, callback);
-
 }
 
 function getYouTubeSearch(recipeTerm, callback) {

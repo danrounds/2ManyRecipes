@@ -1,12 +1,15 @@
-/* body { */
-/*     background-image: url('public/img/pattern.png'); /\* via https://patterninja.com/ *\/ */
-/* } */
+body {
+    background-image: url('public/img/pattern.png'); /* via https://patterninja.com/ */
+    z-index: -3;
+    position: relative;
+}
 
-/* .container { */
-/*     position: relative; */
-/*     z-index: -2; */
-/*     background-color: white; */
-/* } */
+.container {
+    position: relative;
+    z-index: -2;
+    background-color: white;
+    box-shadow: 1px 14px 18px 3px black;
+}
 
 h1 {
     color: #e00;
