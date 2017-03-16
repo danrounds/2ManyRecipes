@@ -2,9 +2,11 @@
 
 ## A toy, single-page recipe scraper
 
+[Live version, here.](https://danrounds.github.io/2ManyRecipes/)
+
 _2ManyRecipes_ submits API queries to YouTube and Yummly and aggregates them into recipe and accompanying video results. The YouTube results are non-robust, because it seems Freebase (their content-topic database) is deprecated.
 
-This project was an exercise in calling 3rd-party APIs and presenting data in a dynamic page, in a coherent way. Also, an excuse to use Bootstrap.
+This project was an exercise in calling 3rd-party APIs and presenting data in a dynamic page, in a coherent way. Also, an excuse to use Bootstrap and prettify things.
 
 ### Tech used:
 * jQuery
