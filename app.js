@@ -118,7 +118,8 @@ function populateRecipeResults(JSON) {
         var content = pic + title + ingredients + cookMinutes;
 
         var linked = `<a href="http://www.yummly.com/recipe/`
-            +`${match.id}" target="_blank">${content}</a>`;
+            +`${match.id}" target="_blank" rel="noopener noreferrer ">`
+            +`${content}</a>`;
 
         var divd = `<div class="col-md-4 result">${linked}</div>`;
 
@@ -224,7 +225,8 @@ function displayVideos(videos) {
             // We have more videos
             var len = `<p class="under-text">${videos.IDsToLength[v.id]}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
-                +`${v.id}" target="_blank">${v.innerHTML+len}</a>`;
+                +`${v.id}" target="_blank" rel="noopener noreferrer">`
+                +`${v.innerHTML+len}</a>`;
             var divd = `<div class="col-md-4 result">${linked}</div>`; 
 
             resultsElement += divd;
