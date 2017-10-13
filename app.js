@@ -150,17 +150,12 @@ function stopScroll(e, callback, data) {
     // millisecond value might need tweaking; via trial and error, it seems fine
 }
 
-// function stopScroll(e, callback, data) {
-//     callback(data);
-// }
-
 function addButton(_class) {
     return '<div class="row"><div class="col-md-12"><div class="col-md-1 col-md-push-11">'
         +`<button class="btn btn-warning ${_class}">more</button>`
         + '</div></div></div>';
 }
 
-// function addRepeatResults(_class, data, reset, displayFn) {
 function addRepeatResults(_class, data, displayFn) {
     $(_class).click(function(e) {
         e.preventDefault();
@@ -218,7 +213,6 @@ function displayVideos(videos) {
     // and inserts event handlers, so we can view `more results'
 
     var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
-    // var elems = moreSearchResults(state.videos);
     var elems = moreSearchResults(videos);
     if (elems.length > 0) {
         for (var v of elems) {
