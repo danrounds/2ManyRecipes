@@ -17,7 +17,6 @@ dynamic page, in a coherent way. Also, an excuse to use Bootstrap and prettify t
 * YouTube and Yummly's databases/API
 
 ### To-do:
-* Clean up index.html and subfolders&#8212;make sure we're using only files we need
 * Clean up JS
 * Add in-page attribution to Yummly and YouTube
 
