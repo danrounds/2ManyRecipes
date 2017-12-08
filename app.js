@@ -61,18 +61,10 @@ var state = {
         };                      // Inserted into the above HTML at display time
     },
     addRecipeResult(HTML) {
-        state.recipes.results[state.recipes.i] = HTML;
-        state.recipes.i++;
+        state.recipes.results.push(HTML);
     },
     addVideoResult(object) {
-        state.videos.results[state.videos.i] = object;
-        state.videos.i++;
-    },
-    resetRecipe_i() {
-        state.recipes.i = 0;
-    },
-    resetVideo_i() {
-        state.videos.i = 0;
+        state.videos.results.push(object);
     },
     makeVidLengths(JSON) {
         JSON.items.forEach(function(item){
@@ -118,6 +110,7 @@ function populateRecipeResults(JSON) {
         var cookMins = match.totalTimeInSeconds/60;
         var cookTime = `${cookMins <= 100 ? cookMins+' minutes' : Math.round(cookMins/60)+' hours'}`;
         var cookTimeElement = `<p class="under-text">cooktime: ${cookTime}</p>\n`;
+
         var ingredients = `<p class="bottom-text">${match.ingredients.join(', ')}</p>\n`;
         var content = pic + title + ingredients + cookTimeElement;
 
@@ -129,7 +122,6 @@ function populateRecipeResults(JSON) {
 
         state.addRecipeResult(divd);
     });
-    state.resetRecipe_i();
 }
 
 function populateVidResults(JSON) {
@@ -143,7 +135,6 @@ function populateVidResults(JSON) {
 
         state.addVideoResult({ innerHTML: content, id: item.id.videoId });
     });
-    state.resetVideo_i();
 }
 
 function stopScrollAndRun(e, callback, data, fn) {
@@ -156,11 +147,10 @@ function stopScrollAndRun(e, callback, data, fn) {
 }
 
 function addButtons(_prevId, _nextId, inactive) {
-    // return '<div class="row"><div class="col-md-12"><div class="col-md-2 col-md-push-10 pull-right">'
     return '<div class="row"><div class="col-md-12"><div class="col-md-2 pull-right">'
         + `<button id="${_prevId}" class="btn btn-warning ${inactive && 'btn-inactive'}">prev</button>`
         + `<button id="${_nextId}" class="btn btn-warning">next</button>`
-        + '</div></div>';
+        + '</div></div></div>';
 }
 
 function addRepeatResults(_class, data, displayFn) {
@@ -183,10 +173,9 @@ function displayRecipes(recipes, moreResults=nextSearchResults) {
         for (var i in elems) {
             resultsElement += elems[i];
         }
-        resultsElement += '</div>' + addButtons('prev-recipes', 'next-recipes', state.recipes.i === 3);
+        resultsElement += addButtons('prev-recipes', 'next-recipes', state.recipes.i === 3);
 
         $('#recipes').html(resultsElement); // heading
-
         // buttons
         $('#next-recipes').click(function(e){
             stopScrollAndRun(e, displayRecipes, recipes);
@@ -228,10 +217,9 @@ function displayVideos(videos, moreResults=nextSearchResults) {
 
             resultsElement += divd;
         }
-        resultsElement += '</div>' + addButtons('prev-videos', 'next-videos', state.videos.i === 3);
+        resultsElement += addButtons('prev-videos', 'next-videos', state.videos.i === 3);
 
         $('#videos').html(resultsElement); // heading
-
         // buttons
         $('#next-videos').click(function(e) {
             stopScrollAndRun(e, displayVideos, videos);
