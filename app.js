@@ -156,10 +156,11 @@ function stopScrollAndRun(e, callback, data, fn) {
 }
 
 function addButtons(_prevId, _nextId, inactive) {
-    return '<div class="row"><div class="col-md-12"><div class="col-md-2 col-md-push-10 pull-right">'
+    // return '<div class="row"><div class="col-md-12"><div class="col-md-2 col-md-push-10 pull-right">'
+    return '<div class="row"><div class="col-md-12"><div class="col-md-2 pull-right">'
         + `<button id="${_prevId}" class="btn btn-warning ${inactive && 'btn-inactive'}">prev</button>`
         + `<button id="${_nextId}" class="btn btn-warning">next</button>`
-        + '</div>';
+        + '</div></div>';
 }
 
 function addRepeatResults(_class, data, displayFn) {
