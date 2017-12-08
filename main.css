@@ -1,18 +1,25 @@
 body {
-    background-image: url('public/img/pattern.png'); /* via https://patterninja.com/ */
-    z-index: -3;
+    background: linear-gradient(
+                        rgba(255, 100, 0, 0.6),
+                        rgba(255, 100, 0, 0.6)
+                    ), url('public/img/pattern.png'); /* via graphicdesignjunction.com/ */
     position: relative;
+    z-index: -3;
 }
 
 .container {
+    cursor: default;
+    font-family: 'Meera Inimai', sans-serif;
     position: relative;
     z-index: -2;
-    background-color: white;
-    box-shadow: 2px 0px 20px 10px black;
+    background-color: #fbfbfb;
+    box-shadow: 2px 0px 20px 10px #333;
+    user-select: none;
 }
 
 h1 {
     color: #e00;
+    font-family: 'Bungee', cursive;
     margin-bottom: 0
 }
 
@@ -30,13 +37,27 @@ h1 {
 }
 
 .btn {
-    margin-bottom: 4.5px;
     background-color: orange;
+    border: 1px solid #666;
+    border-radius: 4px;
     height: 45px;
+    margin-bottom: 4.5px;
+    margin-right: 3px;
+}
+
+.btn-inactive {
+    cursor: default;
+    opacity: 0;
+}
+
+.btn-inactive:hover {
+    cursor: default;
+    opacity: 0;
 }
 
 .btn:hover {
     background-color: #fb0;
+    border: 1px solid #777;
 }
 
 
@@ -111,5 +132,10 @@ a:hover {
     }
     #videos {
         height: 390px;
+    }
+}
+@media screen and (max-width: 530px) {
+    h1 {
+        font-size: 30px;
     }
 }

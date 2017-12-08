@@ -5,7 +5,7 @@ var YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 var YOUTUBE_VID_INQ = 'https://www.googleapis.com/youtube/v3/videos';
 var YOUTUBE_KEY = 'AIzaSyBTNjgDxhK8Valx49hGTSgVJ0wkjCYaqwk';
 
-//// API-query functions
+// API-query functions
 function getYummlyResults(recipeTerm, callback) {
     var query = {
         _app_id: '4ba1f977',
@@ -33,7 +33,7 @@ function getVideoIDs(state){
         part: 'contentDetails',
         id: makeIDQuery(state.videos.results)
     };
-    return $.getJSON(YOUTUBE_VID_INQ, query, makeVidLengths);
+    return $.getJSON(YOUTUBE_VID_INQ, query, state.makeVidLengths);
 }
 
 function makeIDQuery(videoResults) {
@@ -45,9 +45,9 @@ function makeIDQuery(videoResults) {
 }
 
 
-//// state & state-altering functions
+// State & state-altering functions
 var state = {
-    clean: function() {
+    clean() {
         state.recipes = {
             i: 0,               // index
             results: []         // [] of HTML, of displayable results
@@ -59,53 +59,54 @@ var state = {
             // -- that need some love at display time (i.e. in displayVideos)
             IDsToLength: {}     // Mapping of video IDs to their run length.
         };                      // Inserted into the above HTML at display time
+    },
+    addRecipeResult(HTML) {
+        state.recipes.results[state.recipes.i] = HTML;
+        state.recipes.i++;
+    },
+    addVideoResult(object) {
+        state.videos.results[state.videos.i] = object;
+        state.videos.i++;
+    },
+    resetRecipe_i() {
+        state.recipes.i = 0;
+    },
+    resetVideo_i() {
+        state.videos.i = 0;
+    },
+    makeVidLengths(JSON) {
+        JSON.items.forEach(function(item){
+            state.videos.IDsToLength[item.id] = state.parseTimeStamp(item);
+        });
+    },
+    parseTimeStamp(item) {
+        // Converts YouTube's database string format to a human-readable one
+        var time = item.contentDetails.duration.slice(2, -1).split('M');
+        var tStamp = '0:';
+        if (time.length > 1) {
+            tStamp = time.shift() + ':';
+        }
+        if (time[0].length == 1) { time[0] = '0' + time[0]; }
+        return tStamp + time[0];
     }
 };
 
-function addRecipeResult(HTML) {
-    state.recipes.results[state.recipes.i] = HTML;
-    state.recipes.i++;
-}
-
-function addVideoResult(object) {
-    state.videos.results[state.videos.i] = object;
-    state.videos.i++;
-}
-
-function resetRecipe_i() {
-    state.recipes.i = 0;
-}
-
-function resetVideo_i() {
-    state.videos.i = 0;
-}
-
-function makeVidLengths(JSON) {
-    JSON.items.forEach(function(item){
-        state.videos.IDsToLength[item.id] = parseTimeStamp(item);
-    });
-}
-
-function parseTimeStamp(item) {
-    // converts YouTube's database string format to a human-readable one
-    var time = item.contentDetails.duration.slice(2, -1).split('M');
-    var tStamp = '0:';
-    if (time.length > 1) {
-        tStamp = time.shift() + ':';
-    }
-    if (time[0].length == 1) { time[0] = '0' + time[0]; }
-    return tStamp + time[0];
-}
-
-function moreSearchResults(object) {
-    // returns more results, in a form fit for displayRecipes or displayVideos
+function nextSearchResults(object) {
+    // Returns next results, in a form fit for displayRecipes or displayVideos
     object.i += 3;
+    return object.results.slice(object.i-3, object.i);
+}
+
+function prevSearchResults(object) {
+    // Returns prior results, in a form fit for displayRecipes or displayVideos
+    if (object.i !== 3)
+        object.i -= 3;
     return object.results.slice(object.i-3, object.i);
 }
 
 // Basic pre-display & display-functions
 function populateRecipeResults(JSON) {
-    // workhorse function, processes our recipe results into an array of mostly
+    // Workhorse function, processes our recipe results into an array of mostly
     // -formed HTML
     JSON.matches.forEach(function(match){
         var pic = match.imageUrlsBySize[90].slice(0, -4) + '500-c';
@@ -113,9 +114,12 @@ function populateRecipeResults(JSON) {
             +`<img class="thumb img-responsive" src="${pic}" alt="recipe result link"/></div>\n`;
 
         var title = `<h5>${match.recipeName}</h5>\n`;
-        var cookMinutes = `<p class="under-text">cooktime: ${match.totalTimeInSeconds/60} minutes</p>\n`;
+
+        var cookMins = match.totalTimeInSeconds/60;
+        var cookTime = `${cookMins <= 100 ? cookMins+' minutes' : Math.round(cookMins/60)+' hours'}`;
+        var cookTimeElement = `<p class="under-text">cooktime: ${cookTime}</p>\n`;
         var ingredients = `<p class="bottom-text">${match.ingredients.join(', ')}</p>\n`;
-        var content = pic + title + ingredients + cookMinutes;
+        var content = pic + title + ingredients + cookTimeElement;
 
         var linked = `<a href="http://www.yummly.com/recipe/`
             +`${match.id}" target="_blank" rel="noopener noreferrer ">`
@@ -123,13 +127,13 @@ function populateRecipeResults(JSON) {
 
         var divd = `<div class="col-md-4 result">${linked}</div>`;
 
-        addRecipeResult(divd);
+        state.addRecipeResult(divd);
     });
-    resetRecipe_i();
+    state.resetRecipe_i();
 }
 
 function populateVidResults(JSON) {
-    // workhorse function, processing our video results into an array of mostly
+    // Workhorse function, processing our video results into an array of mostly
     // -formed HTML
     JSON.items.forEach(function(item){
         var pic = `<div class="img-cover"><img class="thumb img-responsive" src="${item.snippet.thumbnails.high.url}"></div>\n`;
@@ -137,59 +141,58 @@ function populateVidResults(JSON) {
         var author = '<p class="bottom-text">' + item.snippet.channelTitle + '</p>\n';
         var content = pic + title + author;
 
-        addVideoResult( { innerHTML:content, id:item.id.videoId});
+        state.addVideoResult({ innerHTML: content, id: item.id.videoId });
     });
-    resetVideo_i();
+    state.resetVideo_i();
 }
 
-function stopScroll(e, callback, data) {
+function stopScrollAndRun(e, callback, data, fn) {
+    // This is here to save our scroll position in the page
     e.preventDefault();
     var scrollPoint = $(window).scrollTop();
-    callback(data);
-    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 175);
-    // millisecond value might need tweaking; via trial and error, it seems fine
+    callback(data, fn);
+    setTimeout(function(){ $(window).scrollTop(scrollPoint); }, 350);
+    // ^ Millisecond value might need tweaking; it seems fine
 }
 
-function addButton(_class) {
-    return '<div class="row"><div class="col-md-12"><div class="col-md-1 col-md-push-11">'
-        +`<button class="btn btn-warning ${_class}">more</button>`
-        + '</div></div></div>';
+function addButtons(_prevId, _nextId, inactive) {
+    return '<div class="row"><div class="col-md-12"><div class="col-md-2 col-md-push-10 pull-right">'
+        + `<button id="${_prevId}" class="btn btn-warning ${inactive && 'btn-inactive'}">prev</button>`
+        + `<button id="${_nextId}" class="btn btn-warning">next</button>`
+        + '</div>';
 }
 
 function addRepeatResults(_class, data, displayFn) {
     $(_class).click(function(e) {
         e.preventDefault();
-        // reset();
         data.i = 0;
         displayFn(data);
     });
-
 }
 
-function displayRecipes(recipes) {
+function displayRecipes(recipes, moreResults=nextSearchResults) {
     // Changes the page-HTML to display our recipe results (or lack, thereof)
     // and inserts event handlers, so we can view `more results'
 
     $('h2#recipes-title').text('Recipes');
-    // var resultsElement = '<div class="col-md-12"><h2>Recipes</h2></div>';
     var resultsElement = '';
-    var elems = moreSearchResults(recipes);
+    var elems = moreResults(recipes);
     if (elems.length > 0) {
         // We have more results
         for (var i in elems) {
             resultsElement += elems[i];
         }
-        resultsElement += '</div>' + addButton('more-recipes');
+        resultsElement += '</div>' + addButtons('prev-recipes', 'next-recipes', state.recipes.i === 3);
 
-        $('#recipes').html(resultsElement);
-        $('.more-recipes').click(function(e){
-            stopScroll(e, displayRecipes, recipes);
+        $('#recipes').html(resultsElement); // heading
+
+        // buttons
+        $('#next-recipes').click(function(e){
+            stopScrollAndRun(e, displayRecipes, recipes);
         });
-
-        $('.more-recipes').click(function(e){
-            stopScroll(e, displayRecipes, recipes);
+        $('#prev-recipes').click(function(e){
+            stopScrollAndRun(e, displayRecipes, recipes, prevSearchResults);
         });
-
 
     } else {
         // No results
@@ -207,17 +210,16 @@ function displayRecipes(recipes) {
     }
 }
 
-// function displayVideos(state) {
-function displayVideos(videos) {
+function displayVideos(videos, moreResults=nextSearchResults) {
     // Changes the page-HTML to display our video results (or lack, thereof),
     // and inserts event handlers, so we can view `more results'
 
     var resultsElement = '<div class="col-md-12"><h2>Videos</h2></div>';
-    var elems = moreSearchResults(videos);
+    var elems = moreResults(videos);
     if (elems.length > 0) {
         for (var v of elems) {
             // We have more videos
-            var len = `<p class="under-text">${videos.IDsToLength[v.id]}</p>\n`;
+            var len = `<p class="under-text">length: ${videos.IDsToLength[v.id]}</p>\n`;
             var linked = `<a href="https://youtube.com/watch?v=`
                 +`${v.id}" target="_blank" rel="noopener noreferrer">`
                 +`${v.innerHTML+len}</a>`;
@@ -225,12 +227,18 @@ function displayVideos(videos) {
 
             resultsElement += divd;
         }
-        resultsElement += '</div>' + addButton('more-videos');
+        resultsElement += '</div>' + addButtons('prev-videos', 'next-videos', state.videos.i === 3);
 
-        $('#videos').html(resultsElement);
-        $('.more-videos').click(function(e) {
-            stopScroll(e, displayVideos, videos);
+        $('#videos').html(resultsElement); // heading
+
+        // buttons
+        $('#next-videos').click(function(e) {
+            stopScrollAndRun(e, displayVideos, videos);
         });
+        $('#prev-videos').click(function(e) {
+            stopScrollAndRun(e, displayVideos, videos, prevSearchResults);
+        });
+
     } else {
         // No videos
         if (!videos.i) {
@@ -252,17 +260,17 @@ function watchSubmit() {
         var query = $(this).find('.search-text').val();
 
         state.clean();
-        getYummlyResults(query, populateRecipeResults).done(function(){
-            displayRecipes(state.recipes);
-        });
+        getYummlyResults(query, populateRecipeResults)
+            .done(function() {
+                displayRecipes(state.recipes);
+            });
 
-        getYouTubeSearch(query, populateVidResults).done(function(){
-            getVideoIDs(state).done(function(){
-                displayVideos(state.videos); // don't want to display results
-            });                       // before we /have/ results.
+        getYouTubeSearch(query, populateVidResults).done(function() {
+            getVideoIDs(state).done(function() {
+                displayVideos(state.videos); // Don't want to display results
+            });                              // before we /have/ results.
         });
-
     });
 }
 
-$(function(){ watchSubmit(); });
+$( watchSubmit );
