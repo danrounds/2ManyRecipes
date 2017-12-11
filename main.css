@@ -1,3 +1,7 @@
+html {
+    overflow: hidden;
+}
+
 body {
     background: linear-gradient(
                         rgba(255, 100, 0, 0.6),
@@ -60,6 +64,10 @@ h1 {
     border: 1px solid #777;
 }
 
+#recipes-btns,
+#videos-btns {
+    height: 75px;
+}
 
 h2 {
     text-transform: uppercase;

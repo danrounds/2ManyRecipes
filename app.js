@@ -146,11 +146,17 @@ function stopScrollAndRun(e, callback, data, fn) {
     // ^ Millisecond value might need tweaking; it seems fine
 }
 
-function addButtons(_prevId, _nextId, inactive) {
-    return '<div class="row"><div class="col-md-12"><div class="col-md-2 pull-right">'
-        + `<button id="${_prevId}" class="btn btn-warning ${inactive && 'btn-inactive'}">prev</button>`
-        + `<button id="${_nextId}" class="btn btn-warning">next</button>`
-        + '</div></div></div>';
+function addButtons(selector, _prevId, _nextId, inactive) {
+    var element = '<div class="col-md-12"><div class="col-md-3 pull-right text-right">'
+            + `<button id="${_prevId}" class="btn btn-warning ${inactive && 'btn-inactive'}">prev</button>`
+            + `<button id="${_nextId}" class="btn btn-warning">next</button>`
+            + '</div></div>';
+
+    $(selector).html(element);
+}
+
+function removeButtons(selector) {
+    $(selector).html('');
 }
 
 function addRepeatResults(_class, data, displayFn) {
@@ -170,10 +176,10 @@ function displayRecipes(recipes, moreResults=nextSearchResults) {
     var elems = moreResults(recipes);
     if (elems.length > 0) {
         // We have more results
-        for (var i in elems) {
+        addButtons('#recipes-btns', 'prev-recipes', 'next-recipes', state.recipes.i === 3);
+
+        for (var i in elems)
             resultsElement += elems[i];
-        }
-        resultsElement += addButtons('prev-recipes', 'next-recipes', state.recipes.i === 3);
 
         $('#recipes').html(resultsElement); // heading
         // buttons
@@ -186,14 +192,16 @@ function displayRecipes(recipes, moreResults=nextSearchResults) {
 
     } else {
         // No results
+        removeButtons('#recipes-btns');
+
         if (!recipes.i) {
             // No results
-            resultsElement += '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
+            resultsElement = '<div class="col-md-12"><p>Looks Like there aren\'t any recipes for that search :(</p></div>';
             $('#recipes').html(resultsElement);
 
         } else {
             // We had results (and now we'll loop 'em)
-            resultsElement += '<div class="col-md-12"><p>Guess we\'re fresh out of recipes. <a href=# class="recipe-again">See \'em, again?</a></p></div>';
+            resultsElement = '<div class="col-md-12"><p>Guess we\'re fresh out of recipes. <a href=# class="recipe-again">See \'em, again?</a></p></div>';
             $('#recipes').html(resultsElement);
             addRepeatResults('.recipe-again', recipes, displayRecipes);
         }
@@ -217,7 +225,7 @@ function displayVideos(videos, moreResults=nextSearchResults) {
 
             resultsElement += divd;
         }
-        resultsElement += addButtons('prev-videos', 'next-videos', state.videos.i === 3);
+        addButtons('#videos-btns', 'prev-videos', 'next-videos', state.videos.i === 3);
 
         $('#videos').html(resultsElement); // heading
         // buttons
@@ -230,12 +238,14 @@ function displayVideos(videos, moreResults=nextSearchResults) {
 
     } else {
         // No videos
+        removeButtons('#videos-btns');
+
         if (!videos.i) {
-            resultsElement += '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
+            resultsElement = '<div class="col-md-12"><p>Looks like there aren\'t any video results :\'(</p></div>';
             $('#videos').html(resultsElement);
         } else {
             // We had videos (and now we'll loop 'em)
-            resultsElement += '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href="#" class="video-again">See \'em, again?</a></p>';
+            resultsElement = '<div class="col-md-12"><p>Guess we\'re out of YouTube vids to show you. <a href="#" class="video-again">See \'em, again?</a></p>';
             $('#videos').html(resultsElement);
             addRepeatResults('.video-again', videos, displayVideos);
         }
@@ -246,6 +256,8 @@ function displayVideos(videos, moreResults=nextSearchResults) {
 function watchSubmit() {
     $('.search-form').submit(function(e){
         e.preventDefault();
+        $('html').css('overflow', 'scroll');
+
         var query = $(this).find('.search-text').val();
 
         state.clean();
