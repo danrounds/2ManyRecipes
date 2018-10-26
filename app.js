@@ -10,7 +10,6 @@ function getYummlyResults(recipeTerm, callback) {
     var query = {
         _app_id: '4ba1f977',
         _app_key: '39f9fbb286bd0487912476146ded5807',
-        maxResults: 15,
         q: recipeTerm,
         requirePictures: true
     };
