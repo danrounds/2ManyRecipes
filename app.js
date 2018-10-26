@@ -5,34 +5,60 @@ var YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search';
 var YOUTUBE_VID_INQ = 'https://www.googleapis.com/youtube/v3/videos';
 var YOUTUBE_KEY = 'AIzaSyBTNjgDxhK8Valx49hGTSgVJ0wkjCYaqwk';
 
+function retryFailedGet(query) {
+    if (query.tryCount === undefined) {
+        query.tryCount = 0;
+        query.maxRetries = 4;
+    }
+    if (query.tryCount < query.maxRetries) {
+        query.tryCount++;
+        return $.ajax(query);
+    }
+}
+
 // API-query functions
 function getYummlyResults(recipeTerm, callback) {
     var query = {
-        _app_id: '4ba1f977',
-        _app_key: '39f9fbb286bd0487912476146ded5807',
-        q: recipeTerm,
-        requirePictures: true
+        url: YUMMLY_SEARCH_URL,
+        data: {
+            _app_id: '4ba1f977',
+            _app_key: '39f9fbb286bd0487912476146ded5807',
+            q: recipeTerm,
+            requirePictures: true
+        },
+        success: callback,
+        error: function() { return retryFailedGet(query); }
     };
-    return $.getJSON(YUMMLY_SEARCH_URL, query, callback);
+    return $.ajax(query);
 }
 
 function getYouTubeSearch(recipeTerm, callback) {
     var query = {
-        key: YOUTUBE_KEY,
-        part: 'snippet',
-        maxResults: 15,
-        q: recipeTerm + ' recipe'
+        url: YOUTUBE_SEARCH_URL,
+        data: {
+            key: YOUTUBE_KEY,
+            part: 'snippet',
+            maxResults: 15,
+            q: recipeTerm + ' recipe'
+        },
+        success: callback,
+        error: function() { return retryFailedGet(query); }
     };
-    return $.getJSON(YOUTUBE_SEARCH_URL, query, callback);
+    return $.ajax(query);
 }
 
-function getVideoIDs(state){
+function getVideoIDs(state) {
     var query = {
-        key: YOUTUBE_KEY,
-        part: 'contentDetails',
-        id: makeIDQuery(state.videos.results)
+        url: YOUTUBE_VID_INQ,
+        data: {
+            key: YOUTUBE_KEY,
+            part: 'contentDetails',
+            id: makeIDQuery(state.videos.results)
+        },
+        success: state.makeVidLengths,
+        error: function() { return retryFailedGet(query); }
     };
-    return $.getJSON(YOUTUBE_VID_INQ, query, state.makeVidLengths);
+    return $.ajax(query);
 }
 
 function makeIDQuery(videoResults) {
@@ -260,10 +286,9 @@ function watchSubmit() {
         var query = $(this).find('.search-text').val();
 
         state.clean();
-        getYummlyResults(query, populateRecipeResults)
-            .done(function() {
-                displayRecipes(state.recipes);
-            });
+        getYummlyResults(query, populateRecipeResults).done(function() {
+            displayRecipes(state.recipes);
+        });
 
         getYouTubeSearch(query, populateVidResults).done(function() {
             getVideoIDs(state).done(function() {
